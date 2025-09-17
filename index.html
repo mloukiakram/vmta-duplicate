@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Duplicator</title>
+    <style>
+        /* Modern UI Styling */
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --bg-color: #f4f4f9;
+            --form-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #ddd;
+            --pre-bg: #f8f9fa;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--form-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #888;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        textarea, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box; /* Important for padding and width */
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        .result-container {
+            margin-top: 30px;
+            display: none; /* Hidden by default */
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .result-header h2 {
+            margin: 0;
+        }
+        #copyBtn {
+            width: auto;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        pre {
+            background: var(--pre-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            font-size: 14px;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Breaks long words if necessary */
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Text Duplicator Tool 🔁</h1>
+        </header>
+
+        <main>
+            <form id="duplicatorForm">
+                <div>
+                    <label for="inputText">Text to Modify:</label>
+                    <textarea id="inputText" rows="10" required placeholder="Paste your text here..."></textarea>
+                </div>
+
+                <div>
+                    <label for="loopCount">Number of Duplications (Nombre de boucles):</label>
+                    <input type="number" id="loopCount" value="1" min="1" required>
+                </div>
+
+                <button type="submit">Appliquer les modifications</button>
+            </form>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-header">
+                    <h2>Generated Output</h2>
+                    <button id="copyBtn">Copy to Clipboard</button>
+                </div>
+                <pre id="resultText"></pre>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 Text Duplicator</p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('duplicatorForm');
+        const inputTextElem = document.getElementById('inputText');
+        const loopCountElem = document.getElementById('loopCount');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultTextElem = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        form.addEventListener('submit', (event) => {
+            // Prevent the form from reloading the page
+            event.preventDefault();
+
+            const originalText = inputTextElem.value;
+            const loops = parseInt(loopCountElem.value, 10);
+
+            // Basic validation
+            if (!originalText || loops < 1) {
+                alert("Please provide valid text and a number of duplications greater than 0.");
+                return;
+            }
+
+            let finalOutput = '';
+            
+            // This is the regular expression to find the virtual-mta ID
+            // It captures the part between the opening tag and the closing angle bracket
+            const regex = /<virtual-mta\s+([\w\.\-]+)>/g;
+
+            for (let i = 1; i <= loops; i++) {
+                // For each loop, replace the captured ID with itself plus the loop number
+                const modifiedText = originalText.replaceAll(regex, `<virtual-mta $1-${i}>`);
+                
+                finalOutput += modifiedText;
+                
+                // Add a newline separator between each duplicated block, but not after the last one
+                if (i < loops) {
+                    finalOutput += '\n\n';
+                }
+            }
+
+            // Display the result
+            resultTextElem.textContent = finalOutput;
+            resultContainer.style.display = 'block';
+        });
+
+        // --- Copy to Clipboard Functionality ---
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(resultTextElem.textContent).then(() => {
+                // Success feedback
+                copyBtn.textContent = 'Copied! ✅';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy to Clipboard';
+                }, 2000); // Reset text after 2 seconds
+            }).catch(err => {
+                // Error feedback
+                console.error('Failed to copy text: ', err);
+                copyBtn.textContent = 'Copy Failed';
+            });
+        });
+
+    </script>
+</body>
+</html>
