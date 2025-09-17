@@ -69,14 +69,25 @@
             margin-bottom: 8px;
             color: var(--grey-800);
         }
-        textarea, input {
+        textarea, input, select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
             box-sizing: border-box;
+            background-color: #fff; /* Ensure select has a white background */
+            font-family: inherit; /* Ensure select inherits the font */
             transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235f6368' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
         }
         textarea {
             resize: vertical;
@@ -87,7 +98,7 @@
             flex-direction: column;
             flex-grow: 1;
         }
-        textarea:focus, input:focus {
+        textarea:focus, input:focus, select:focus {
             outline: none;
             border-color: var(--blue-600);
             box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
@@ -216,7 +227,37 @@
                             <div class="manual-inputs-grid">
                                 <div>
                                     <label for="ispInput">ISP:</label>
-                                    <input type="text" id="ispInput" placeholder="e.g., gmail">
+                                    <select id="ispInput">
+                                        <option value="gmail">gmail</option>
+                                        <option value="icloud">icloud</option>
+                                        <option value="charter">charter</option>
+                                        <option value="juno">juno</option>
+                                        <option value="roadrunner">roadrunner</option>
+                                        <option value="frontier">frontier</option>
+                                        <option value="cox">cox</option>
+                                        <option value="optonline">optonline</option>
+                                        <option value="att">att</option>
+                                        <option value="verizon">verizon</option>
+                                        <option value="earthlink">earthlink</option>
+                                        <option value="comcast">comcast</option>
+                                        <option value="sbcglobal">sbcglobal</option>
+                                        <option value="bt">bt</option>
+                                        <option value="sky">sky</option>
+                                        <option value="talktalk">talktalk</option>
+                                        <option value="excite">excite</option>
+                                        <option value="windstream">windstream</option>
+                                        <option value="mail">mail</option>
+                                        <option value="giuk">giuk</option>
+                                        <option value="gius">gius</option>
+                                        <option value="gius2">gius2</option>
+                                        <option value="hotmail">hotmail</option>
+                                        <option value="yahoo">yahoo</option>
+                                        <option value="aol">aol</option>
+                                        <option value="cableone">cableone</option>
+                                        <option value="centurylink">centurylink</option>
+                                        <option value="virginmedia">virginmedia</option>
+                                        <option value="bellsouth">bellsouth</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label for="mailerIdInput">Mailer-ID:</label>
@@ -349,7 +390,7 @@
                 }
                 if (ipListText) {
                     const lines = ipListText.split('\n').filter(line => line.trim() !== '');
-                    const modifiedLines = lines.map(line => `${line.trim()},gmail-${i}`);
+                    const modifiedLines = lines.map(line => `${line.trim()},${ispInputElem.value}-${i}`);
                     ipListOutput += modifiedLines.join('\n') + (i < loops ? '\n\n' : '');
                 }
             }
