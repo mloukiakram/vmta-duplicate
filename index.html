@@ -3,104 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Duplicator</title>
+    <title>Configuration Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Modern UI Styling */
+        /* Gmail-inspired Modern UI */
         :root {
-            --primary-color: #007bff;
-            --primary-hover: #0056b3;
-            --bg-color: #f4f4f9;
+            --blue-600: #1A73E8;
+            --blue-700: #1967D2;
+            --grey-100: #F6F8FC;
+            --grey-300: #DADCE0;
+            --grey-800: #3c4043;
+            --grey-900: #202124;
+            --bg-color: var(--grey-100);
             --form-bg: #ffffff;
-            --text-color: #333;
-            --border-color: #ddd;
-            --pre-bg: #f8f9fa;
+            --text-color: var(--grey-900);
+            --border-color: var(--grey-300);
+            --border-radius: 8px;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Roboto", "Segoe UI", Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
         }
+
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 20px auto;
             background-color: var(--form-bg);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 24px 32px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease-in-out;
         }
+
         header, footer {
             text-align: center;
-            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
         }
+        
         header h1 {
+            font-size: 24px;
+            font-weight: 500;
             margin: 0;
-            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
-        footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #888;
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 25px;
         }
+        
         label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 14px;
             margin-bottom: 8px;
+            color: var(--grey-800);
         }
+
         textarea, input[type="number"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box; /* Important for padding and width */
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
             resize: vertical;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        button {
+
+        textarea:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--blue-600);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        #generateBtn {
             width: 100%;
-            padding: 15px;
-            background-color: var(--primary-color);
+            padding: 12px;
+            background-color: var(--blue-600);
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: 600;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
         }
-        button:hover {
-            background-color: var(--primary-hover);
+
+        #generateBtn:hover {
+            background-color: var(--blue-700);
+            box-shadow: 0 1px 3px 1px rgba(60,64,67,0.15);
         }
-        .result-container {
+        
+        .results-wrapper {
             margin-top: 30px;
             display: none; /* Hidden by default */
+            animation: fadeIn 0.5s ease-in-out;
         }
+
+        .output-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .result-container {
+            display: flex;
+            flex-direction: column;
+        }
+
         .result-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
+
         .result-header h2 {
+            font-size: 18px;
+            font-weight: 500;
             margin: 0;
         }
-        #copyBtn {
-            width: auto;
-            padding: 8px 15px;
-            font-size: 14px;
+
+        .copy-btn {
+            background-color: #F1F3F4;
+            color: var(--grey-800);
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
+        
+        .copy-btn:hover {
+            background-color: #E8EAED;
+        }
+
         pre {
-            background: var(--pre-bg);
+            background: var(--bg-color);
             border: 1px solid var(--border-color);
-            border-radius: 5px;
+            border-radius: 4px;
             padding: 15px;
-            font-size: 14px;
-            white-space: pre-wrap; /* Allows text to wrap */
-            word-wrap: break-word; /* Breaks long words if necessary */
-            max-height: 400px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            flex-grow: 1;
             overflow-y: auto;
+            max-height: 400px;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 800px) {
+            .input-grid, .output-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -108,97 +193,151 @@
 
     <div class="container">
         <header>
-            <h1>Text Duplicator Tool 🔁</h1>
+            <h1>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 7.5L12 13.5L4 7.5" stroke="#3C4043" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 18.5H20V5.5H4V18.5Z" stroke="#3C4043" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Configuration Generator
+            </h1>
         </header>
 
         <main>
-            <form id="duplicatorForm">
-                <div>
-                    <label for="inputText">Text to Modify:</label>
-                    <textarea id="inputText" rows="10" required placeholder="Paste your text here..."></textarea>
+            <form id="generatorForm">
+                <div class="input-grid">
+                    <section id="vMtaInputSection">
+                        <label for="vMtaText">Virtual-MTA Configuration:</label>
+                        <textarea id="vMtaText" rows="12" placeholder="<virtual-mta ...>&#10; smtp-source-ip ...&#10; host-name ...&#10;</virtual-mta>"></textarea>
+                    </section>
+                    
+                    <section id="ipInputSection">
+                        <label for="ipList">IP & Domain List:</label>
+                        <textarea id="ipList" rows="12" placeholder="195.154.200.28,qdfnet.com,...&#10;212.129.0.117,step.qdfnet.com,..."></textarea>
+                    </section>
                 </div>
-
+                
                 <div>
-                    <label for="loopCount">Number of Duplications (Nombre de boucles):</label>
+                    <label for="loopCount">Number of Duplications:</label>
                     <input type="number" id="loopCount" value="1" min="1" required>
                 </div>
 
-                <button type="submit">Appliquer les modifications</button>
+                <button type="submit" id="generateBtn">Generate</button>
             </form>
 
-            <div class="result-container" id="resultContainer">
-                <div class="result-header">
-                    <h2>Generated Output</h2>
-                    <button id="copyBtn">Copy to Clipboard</button>
+            <div class="results-wrapper" id="resultsWrapper">
+                <div class="output-grid">
+                    <div class="result-container" id="vMtaResultContainer">
+                         <div class="result-header">
+                            <h2>Virtual-MTA Output</h2>
+                            <button class="copy-btn" data-target="vMtaResultText">Copy</button>
+                        </div>
+                        <pre id="vMtaResultText"></pre>
+                    </div>
+
+                    <div class="result-container" id="ipListResultContainer">
+                         <div class="result-header">
+                            <h2>IP & Domain List Output</h2>
+                            <button class="copy-btn" data-target="ipListResultText">Copy</button>
+                        </div>
+                        <pre id="ipListResultText"></pre>
+                    </div>
                 </div>
-                <pre id="resultText"></pre>
             </div>
         </main>
         
         <footer>
-            <p>© 2025 Text Duplicator</p>
+            <p>© 2025 ConfigGen Tool</p>
         </footer>
     </div>
 
     <script>
-        const form = document.getElementById('duplicatorForm');
-        const inputTextElem = document.getElementById('inputText');
+        const form = document.getElementById('generatorForm');
         const loopCountElem = document.getElementById('loopCount');
-        const resultContainer = document.getElementById('resultContainer');
-        const resultTextElem = document.getElementById('resultText');
-        const copyBtn = document.getElementById('copyBtn');
+        const resultsWrapper = document.getElementById('resultsWrapper');
+
+        // Inputs
+        const vMtaTextElem = document.getElementById('vMtaText');
+        const ipListElem = document.getElementById('ipList');
+
+        // Output Containers
+        const vMtaResultContainer = document.getElementById('vMtaResultContainer');
+        const ipListResultContainer = document.getElementById('ipListResultContainer');
+
+        // Output <pre> Elements
+        const vMtaResultTextElem = document.getElementById('vMtaResultText');
+        const ipListResultTextElem = document.getElementById('ipListResultText');
 
         form.addEventListener('submit', (event) => {
-            // Prevent the form from reloading the page
-            event.preventDefault();
+            event.preventDefault(); // Prevent form from reloading the page
 
-            const originalText = inputTextElem.value;
             const loops = parseInt(loopCountElem.value, 10);
+            const vMtaText = vMtaTextElem.value.trim();
+            const ipListText = ipListElem.value.trim();
 
-            // Basic validation
-            if (!originalText || loops < 1) {
-                alert("Please provide valid text and a number of duplications greater than 0.");
+            if ((!vMtaText && !ipListText) || loops < 1) {
+                alert("Please provide text in at least one input field and a valid number of duplications.");
                 return;
             }
 
-            let finalOutput = '';
+            let vMtaOutput = '';
+            let ipListOutput = '';
             
-            // This is the regular expression to find the virtual-mta ID
-            // It captures the part between the opening tag and the closing angle bracket
-            const regex = /<virtual-mta\s+([\w\.\-]+)>/g;
+            // Regex for virtual-mta ID
+            const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
 
             for (let i = 1; i <= loops; i++) {
-                // For each loop, replace the captured ID with itself plus the loop number
-                const modifiedText = originalText.replaceAll(regex, `<virtual-mta $1-${i}>`);
-                
-                finalOutput += modifiedText;
-                
-                // Add a newline separator between each duplicated block, but not after the last one
-                if (i < loops) {
-                    finalOutput += '\n\n';
+                // Task 1: Process Virtual-MTA Configuration
+                if (vMtaText) {
+                    const modifiedText = vMtaText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
+                    vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                }
+
+                // Task 2: Process IP & Domain List
+                if (ipListText) {
+                    const lines = ipListText.split('\n').filter(line => line.trim() !== '');
+                    const modifiedLines = lines.map(line => `${line.trim()},gmail-${i}`);
+                    ipListOutput += modifiedLines.join('\n') + (i < loops ? '\n\n' : '');
                 }
             }
 
-            // Display the result
-            resultTextElem.textContent = finalOutput;
-            resultContainer.style.display = 'block';
+            // Display results
+            let hasOutput = false;
+            if (vMtaOutput) {
+                vMtaResultTextElem.textContent = vMtaOutput;
+                vMtaResultContainer.style.display = 'flex';
+                hasOutput = true;
+            } else {
+                vMtaResultContainer.style.display = 'none';
+            }
+
+            if (ipListOutput) {
+                ipListResultTextElem.textContent = ipListOutput;
+                ipListResultContainer.style.display = 'flex';
+                hasOutput = true;
+            } else {
+                ipListResultContainer.style.display = 'none';
+            }
+            
+            if(hasOutput) {
+                resultsWrapper.style.display = 'block';
+            }
         });
 
-        // --- Copy to Clipboard Functionality ---
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(resultTextElem.textContent).then(() => {
-                // Success feedback
-                copyBtn.textContent = 'Copied! ✅';
-                setTimeout(() => {
-                    copyBtn.textContent = 'Copy to Clipboard';
-                }, 2000); // Reset text after 2 seconds
-            }).catch(err => {
-                // Error feedback
-                console.error('Failed to copy text: ', err);
-                copyBtn.textContent = 'Copy Failed';
+        // --- Generic Copy to Clipboard Functionality ---
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const targetElement = document.getElementById(targetId);
+                
+                navigator.clipboard.writeText(targetElement.textContent).then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied! ✅';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000); // Reset text after 2 seconds
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    button.textContent = 'Copy Failed';
+                });
             });
         });
-
     </script>
 </body>
 </html>
