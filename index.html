@@ -12,7 +12,7 @@
         :root {
             --blue-600: #1A73E8;
             --blue-700: #1967D2;
-            --grey-100: #F8F9FA; /* Slightly off-white for background */
+            --grey-100: #F8F9FA;
             --grey-200: #F1F3F4;
             --grey-300: #DADCE0;
             --grey-800: #3c4043;
@@ -33,7 +33,7 @@
             max-width: 1200px;
             margin: 20px auto;
             background-color: var(--form-bg);
-            padding: 32px 40px; /* Increased padding */
+            padding: 32px 40px;
             border-radius: var(--border-radius);
             border: 1px solid var(--border-color);
             transition: box-shadow 0.3s ease-in-out;
@@ -44,7 +44,7 @@
         header {
             text-align: center;
             padding-bottom: 24px;
-            margin-bottom: 32px; /* Increased spacing */
+            margin-bottom: 32px;
             border-bottom: 1px solid var(--border-color);
         }
         header h1 {
@@ -56,7 +56,7 @@
         .input-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 32px; /* Increased gap */
+            gap: 32px;
             margin-bottom: 24px;
         }
         .input-section {
@@ -76,8 +76,8 @@
             border-radius: 4px;
             font-size: 14px;
             box-sizing: border-box;
-            background-color: #fff; /* Ensure select has a white background */
-            font-family: inherit; /* Ensure select inherits the font */
+            background-color: #fff;
+            font-family: inherit;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         select {
@@ -91,7 +91,7 @@
         }
         textarea {
             resize: vertical;
-            flex-grow: 1; /* Makes textareas fill vertical space */
+            flex-grow: 1;
         }
         #pasteContainer {
             display: flex;
@@ -105,7 +105,7 @@
         }
         #generateBtn {
             width: 100%;
-            padding: 14px; /* Increased padding */
+            padding: 14px;
             background-color: var(--blue-600);
             color: white;
             border: none;
@@ -121,7 +121,7 @@
             box-shadow: 0 1px 3px 1px rgba(60,64,67,0.15);
         }
         .results-wrapper {
-            margin-top: 40px; /* Increased spacing */
+            margin-top: 40px;
             display: none;
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -164,7 +164,7 @@
             word-wrap: break-word;
             flex-grow: 1;
             overflow-y: auto;
-            min-height: 250px; /* Ensures a minimum height */
+            min-height: 250px;
         }
         footer {
             margin-top: 40px;
@@ -174,7 +174,6 @@
             color: #888;
             text-align: center;
         }
-        /* --- Toggle Switch Styles --- */
         .mode-selector { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -189,6 +188,30 @@
             font-size: 13px;
             color: #5f6368;
             margin-left: 5px;
+        }
+        /* New Styles for Save Checkbox */
+        .label-with-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .save-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .save-option label {
+            margin-bottom: 0; /* Override default label margin */
+            font-weight: 400;
+            font-size: 13px;
+            color: #5f6368;
+            cursor: pointer;
+        }
+        .save-option input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -260,7 +283,13 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="mailerIdInput">Mailer-ID:</label>
+                                    <div class="label-with-action">
+                                        <label for="mailerIdInput">Mailer-ID:</label>
+                                        <div class="save-option">
+                                            <input type="checkbox" id="saveMailerIdCheck">
+                                            <label for="saveMailerIdCheck">Save</label>
+                                        </div>
+                                    </div>
                                     <input type="text" id="mailerIdInput" placeholder="e.g., 931">
                                 </div>
                                 <div>
@@ -318,115 +347,143 @@
     </footer>
 
     <script>
-        const form = document.getElementById('generatorForm');
-        const loopCountElem = document.getElementById('loopCount');
-        const resultsWrapper = document.getElementById('resultsWrapper');
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('generatorForm');
+            const loopCountElem = document.getElementById('loopCount');
+            const resultsWrapper = document.getElementById('resultsWrapper');
 
-        const vMtaModeToggle = document.getElementById('vMtaModeToggle');
-        const pasteContainer = document.getElementById('pasteContainer');
-        const manualContainer = document.getElementById('manualContainer');
-        
-        const vMtaTextElem = document.getElementById('vMtaText');
-        const ipListElem = document.getElementById('ipList');
-        const ispInputElem = document.getElementById('ispInput');
-        const mailerIdInputElem = document.getElementById('mailerIdInput');
-        const hostnameInputElem = document.getElementById('hostnameInput');
-
-        const vMtaResultContainer = document.getElementById('vMtaResultContainer');
-        const ipListResultContainer = document.getElementById('ipListResultContainer');
-        const vMtaResultTextElem = document.getElementById('vMtaResultText');
-        const ipListResultTextElem = document.getElementById('ipListResultText');
-
-        vMtaModeToggle.addEventListener('change', () => {
-            if (vMtaModeToggle.checked) { // Manual mode
-                pasteContainer.style.display = 'none';
-                manualContainer.style.display = 'block';
-            } else { // Paste mode
-                pasteContainer.style.display = 'block';
-                manualContainer.style.display = 'none';
-            }
-        });
-
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const loops = parseInt(loopCountElem.value, 10);
-            const ipListText = ipListElem.value.trim();
-            let vMtaBaseText = '';
+            const vMtaModeToggle = document.getElementById('vMtaModeToggle');
+            const pasteContainer = document.getElementById('pasteContainer');
+            const manualContainer = document.getElementById('manualContainer');
             
-            if (vMtaModeToggle.checked) {
-                const isp = ispInputElem.value.trim();
-                const mailerId = mailerIdInputElem.value.trim();
-                const hostname = hostnameInputElem.value.trim();
-                const ips = ipListElem.value.trim().split('\n')
-                    .filter(line => line.trim() !== '')
-                    .map(line => line.split(',')[0].trim());
+            const vMtaTextElem = document.getElementById('vMtaText');
+            const ipListElem = document.getElementById('ipList');
+            const ispInputElem = document.getElementById('ispInput');
+            const mailerIdInputElem = document.getElementById('mailerIdInput');
+            const hostnameInputElem = document.getElementById('hostnameInput');
+            const saveMailerIdCheck = document.getElementById('saveMailerIdCheck');
 
-                if (!ips.length || !isp || !mailerId || !hostname) {
-                    alert("Please fill all manual input fields and ensure the IP & Domain List is populated.");
+            const vMtaResultContainer = document.getElementById('vMtaResultContainer');
+            const ipListResultContainer = document.getElementById('ipListResultContainer');
+            const vMtaResultTextElem = document.getElementById('vMtaResultText');
+            const ipListResultTextElem = document.getElementById('ipListResultText');
+            
+            // --- Local Storage Logic ---
+            const savedMailerId = localStorage.getItem('savedMailerId');
+            if (savedMailerId) {
+                mailerIdInputElem.value = savedMailerId;
+                saveMailerIdCheck.checked = true;
+            }
+
+            function handleSavePreference() {
+                if (saveMailerIdCheck.checked) {
+                    localStorage.setItem('savedMailerId', mailerIdInputElem.value);
+                } else {
+                    localStorage.removeItem('savedMailerId');
+                }
+            }
+
+            saveMailerIdCheck.addEventListener('change', handleSavePreference);
+            mailerIdInputElem.addEventListener('input', () => {
+                if (saveMailerIdCheck.checked) {
+                    localStorage.setItem('savedMailerId', mailerIdInputElem.value);
+                }
+            });
+
+            // --- Toggle Logic ---
+            vMtaModeToggle.addEventListener('change', () => {
+                if (vMtaModeToggle.checked) {
+                    pasteContainer.style.display = 'none';
+                    manualContainer.style.display = 'block';
+                } else {
+                    pasteContainer.style.display = 'block';
+                    manualContainer.style.display = 'none';
+                }
+            });
+
+            // --- Form Submission Logic ---
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const loops = parseInt(loopCountElem.value, 10);
+                const ipListText = ipListElem.value.trim();
+                let vMtaBaseText = '';
+                
+                if (vMtaModeToggle.checked) {
+                    const isp = ispInputElem.value.trim();
+                    const mailerId = mailerIdInputElem.value.trim();
+                    const hostname = hostnameInputElem.value.trim();
+                    const ips = ipListElem.value.trim().split('\n')
+                        .filter(line => line.trim() !== '')
+                        .map(line => line.split(',')[0].trim());
+
+                    if (!ips.length || !isp || !mailerId || !hostname) {
+                        alert("Please fill all manual input fields and ensure the IP & Domain List is populated.");
+                        return;
+                    }
+
+                    vMtaBaseText = ips.map(ip => 
+                        `<virtual-mta ${ip}-${isp}-${mailerId}>\n smtp-source-ip ${ip}\n host-name ${hostname}\n</virtual-mta>`
+                    ).join('\n');
+                } else {
+                    vMtaBaseText = vMtaTextElem.value.trim();
+                }
+
+                if ((!vMtaBaseText && !ipListText) || loops < 1) {
+                    alert("Please provide text in at least one input area and a valid number of duplications.");
                     return;
                 }
 
-                vMtaBaseText = ips.map(ip => 
-                    `<virtual-mta ${ip}-${isp}-${mailerId}>\n smtp-source-ip ${ip}\n host-name ${hostname}\n</virtual-mta>`
-                ).join('\n');
-            } else {
-                vMtaBaseText = vMtaTextElem.value.trim();
-            }
+                let vMtaOutput = '';
+                let ipListOutput = '';
+                const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
 
-            if ((!vMtaBaseText && !ipListText) || loops < 1) {
-                alert("Please provide text in at least one input area and a valid number of duplications.");
-                return;
-            }
-
-            let vMtaOutput = '';
-            let ipListOutput = '';
-            const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
-
-            for (let i = 1; i <= loops; i++) {
-                if (vMtaBaseText) {
-                    const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
-                    vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                for (let i = 1; i <= loops; i++) {
+                    if (vMtaBaseText) {
+                        const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
+                        vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                    }
+                    if (ipListText) {
+                        const lines = ipListText.split('\n').filter(line => line.trim() !== '');
+                        const modifiedLines = lines.map(line => `${line.trim()},${ispInputElem.value}-${i}`);
+                        ipListOutput += modifiedLines.join('\n') + (i < loops ? '\n\n' : '');
+                    }
                 }
-                if (ipListText) {
-                    const lines = ipListText.split('\n').filter(line => line.trim() !== '');
-                    const modifiedLines = lines.map(line => `${line.trim()},${ispInputElem.value}-${i}`);
-                    ipListOutput += modifiedLines.join('\n') + (i < loops ? '\n\n' : '');
-                }
-            }
-            
-            let hasOutput = false;
-            if (vMtaOutput) {
-                vMtaResultTextElem.textContent = vMtaOutput;
-                vMtaResultContainer.style.display = 'flex';
-                hasOutput = true;
-            } else {
-                vMtaResultContainer.style.display = 'none';
-            }
-            if (ipListOutput) {
-                ipListResultTextElem.textContent = ipListOutput;
-                ipListResultContainer.style.display = 'flex';
-                hasOutput = true;
-            } else {
-                ipListResultContainer.style.display = 'none';
-            }
-            if(hasOutput) {
-                resultsWrapper.style.display = 'block';
-            }
-        });
-
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const currentButton = e.currentTarget;
-                const targetId = currentButton.dataset.target;
-                const targetElement = document.getElementById(targetId);
                 
-                navigator.clipboard.writeText(targetElement.textContent).then(() => {
-                    const originalContent = currentButton.innerHTML;
-                    currentButton.innerHTML = 'Copied! ✅';
-                    setTimeout(() => { currentButton.innerHTML = originalContent; }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
+                let hasOutput = false;
+                if (vMtaOutput) {
+                    vMtaResultTextElem.textContent = vMtaOutput;
+                    vMtaResultContainer.style.display = 'flex';
+                    hasOutput = true;
+                } else {
+                    vMtaResultContainer.style.display = 'none';
+                }
+                if (ipListOutput) {
+                    ipListResultTextElem.textContent = ipListOutput;
+                    ipListResultContainer.style.display = 'flex';
+                    hasOutput = true;
+                } else {
+                    ipListResultContainer.style.display = 'none';
+                }
+                if(hasOutput) {
+                    resultsWrapper.style.display = 'block';
+                }
+            });
+
+            // --- Copy Button Logic ---
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const currentButton = e.currentTarget;
+                    const targetId = currentButton.dataset.target;
+                    const targetElement = document.getElementById(targetId);
+                    
+                    navigator.clipboard.writeText(targetElement.textContent).then(() => {
+                        const originalContent = currentButton.innerHTML;
+                        currentButton.innerHTML = 'Copied! ✅';
+                        setTimeout(() => { currentButton.innerHTML = originalContent; }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
                 });
             });
         });
