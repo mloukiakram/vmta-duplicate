@@ -213,6 +213,12 @@
             height: 16px;
             cursor: pointer;
         }
+        .format-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 800px) {
@@ -308,6 +314,14 @@
                     <div class="full-width-section">
                         <label for="loopCount">Number of Duplications:</label>
                         <input type="number" id="loopCount" value="1" min="1" required>
+                        <div class="format-selector">
+                            <label for="sequentialModeToggle">Standard Format</label>
+                             <label class="switch">
+                                 <input type="checkbox" id="sequentialModeToggle">
+                                 <span class="slider"></span>
+                             </label>
+                            <label for="sequentialModeToggle">Sequential Format</label>
+                         </div>
                     </div>
                 </div>
 
@@ -362,6 +376,7 @@
             const mailerIdInputElem = document.getElementById('mailerIdInput');
             const hostnameInputElem = document.getElementById('hostnameInput');
             const saveMailerIdCheck = document.getElementById('saveMailerIdCheck');
+            const sequentialModeToggle = document.getElementById('sequentialModeToggle');
 
             const vMtaResultContainer = document.getElementById('vMtaResultContainer');
             const ipListResultContainer = document.getElementById('ipListResultContainer');
@@ -437,11 +452,21 @@
                 let vMtaOutput = '';
                 let ipListOutput = '';
                 const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
+                let sequentialCounter = 1;
 
                 for (let i = 1; i <= loops; i++) {
                     if (vMtaBaseText) {
-                        const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
-                        vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        if (sequentialModeToggle.checked) {
+                            const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, (match, p1) => {
+                                const newVmtaname = `<virtual-mta ${p1}-${sequentialCounter}>`;
+                                sequentialCounter++;
+                                return newVmtaname;
+                            });
+                             vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        } else {
+                            const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
+                            vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        }
                     }
                     if (ipListText) {
                         const lines = ipListText.split('\n').filter(line => line.trim() !== '');
@@ -490,4 +515,3 @@
     </script>
 </body>
 </html>
-
