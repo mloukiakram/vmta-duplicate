@@ -213,6 +213,12 @@
             height: 16px;
             cursor: pointer;
         }
+        .format-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 800px) {
@@ -308,6 +314,14 @@
                     <div class="full-width-section">
                         <label for="loopCount">Number of Duplications:</label>
                         <input type="number" id="loopCount" value="1" min="1" required>
+                        <div class="format-selector">
+                            <label for="sequentialModeToggle">Standard Format</label>
+                             <label class="switch">
+                                 <input type="checkbox" id="sequentialModeToggle">
+                                 <span class="slider"></span>
+                             </label>
+                            <label for="sequentialModeToggle">Sequential Format</label>
+                         </div>
                     </div>
                 </div>
 
@@ -362,6 +376,7 @@
             const mailerIdInputElem = document.getElementById('mailerIdInput');
             const hostnameInputElem = document.getElementById('hostnameInput');
             const saveMailerIdCheck = document.getElementById('saveMailerIdCheck');
+            const sequentialModeToggle = document.getElementById('sequentialModeToggle');
 
             const vMtaResultContainer = document.getElementById('vMtaResultContainer');
             const ipListResultContainer = document.getElementById('ipListResultContainer');
@@ -437,16 +452,38 @@
                 let vMtaOutput = '';
                 let ipListOutput = '';
                 const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
+                let ipSequentialCounter = 1;
 
-                for (let i = 1; i <= loops; i++) {
-                    if (vMtaBaseText) {
+                // VMTA output generation (Standard format only)
+                if (vMtaBaseText) {
+                    let allVmtas = [];
+                    for (let i = 1; i <= loops; i++) {
                         const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
-                        vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        allVmtas.push(modifiedText);
                     }
-                    if (ipListText) {
-                        const lines = ipListText.split('\n').filter(line => line.trim() !== '');
-                        const modifiedLines = lines.map(line => `${line.trim()},${ispInputElem.value}-${i}`);
-                        ipListOutput += modifiedLines.join('\n') + (i < loops ? '\n\n' : '');
+                    vMtaOutput = allVmtas.join('\n\n');
+                }
+                
+                // IP & Domain List Output generation (with sequential/standard option)
+                if (ipListText) {
+                    const lines = ipListText.split('\n').filter(line => line.trim() !== '');
+                    let allModifiedLines = [];
+                    if (sequentialModeToggle.checked) {
+                         for (let i = 1; i <= loops; i++) {
+                            const modifiedLines = lines.map(line => {
+                                const modifiedLine = `${line.trim()},${ispInputElem.value}-${ipSequentialCounter}`;
+                                ipSequentialCounter++;
+                                return modifiedLine;
+                            });
+                            allModifiedLines.push(...modifiedLines);
+                        }
+                        ipListOutput = allModifiedLines.join('\n');
+                    } else {
+                        for (let i = 1; i <= loops; i++) {
+                            const modifiedLines = lines.map(line => `${line.trim()},${ispInputElem.value}-${i}`);
+                             allModifiedLines.push(modifiedLines.join('\n'));
+                        }
+                        ipListOutput = allModifiedLines.join('\n\n');
                     }
                 }
                 
