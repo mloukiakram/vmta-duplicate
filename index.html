@@ -452,19 +452,25 @@
                 let vMtaOutput = '';
                 let ipListOutput = '';
                 const vMtaRegex = /<virtual-mta\s+([\w\.\-]+)>/g;
+                let vMtaSequentialCounter = 1;
                 let ipSequentialCounter = 1;
 
-                // VMTA output generation (Standard format only)
-                if (vMtaBaseText) {
-                    let allVmtas = [];
-                    for (let i = 1; i <= loops; i++) {
-                        const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
-                        allVmtas.push(modifiedText);
+                for (let i = 1; i <= loops; i++) {
+                    if (vMtaBaseText) {
+                        if (sequentialModeToggle.checked) {
+                            const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, (match, p1) => {
+                                const newVmtaname = `<virtual-mta ${p1}-${vMtaSequentialCounter}>`;
+                                vMtaSequentialCounter++;
+                                return newVmtaname;
+                            });
+                             vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        } else {
+                            const modifiedText = vMtaBaseText.replaceAll(vMtaRegex, `<virtual-mta $1-${i}>`);
+                            vMtaOutput += modifiedText + (i < loops ? '\n\n' : '');
+                        }
                     }
-                    vMtaOutput = allVmtas.join('\n\n');
                 }
                 
-                // IP & Domain List Output generation (with sequential/standard option)
                 if (ipListText) {
                     const lines = ipListText.split('\n').filter(line => line.trim() !== '');
                     let allModifiedLines = [];
